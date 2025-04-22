@@ -69,6 +69,7 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`GPT backend запущен на http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`GPT backend запущен на порт ${PORT}`);
 });
+
