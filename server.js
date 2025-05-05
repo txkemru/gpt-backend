@@ -11,15 +11,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// для multipart/form-data
-const upload = multer();
-
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// 1) Существующий маршрут /gpt для текстового чата
+// Для multipart/form-data (аудиофайлы)
+const upload = multer();
+
+// ===== GPT-Текст =====
 app.post('/gpt', async (req, res) => {
   const userText = req.body.text;
+
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -30,25 +32,30 @@ app.post('/gpt', async (req, res) => {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: `Ты — живой, дружелюбный и умный ассистент.`
-             },
-          { role: 'user', content: userText },
+          { role: 'system', content: 'Ты — живой, дружелюбный и умный ассистент.' },
+          { role: 'user', content: userText }
         ],
         temperature: 0.7,
       }),
     });
+
     const data = await response.json();
-    res.json({ reply: data.choices?.[0]?.message?.content });
+
+    if (!response.ok) {
+      console.error('❌ GPT API ошибка:', data);
+      return res.status(500).json({ error: data });
+    }
+
+    res.json({ reply: data.choices?.[0]?.message?.content || '[Пустой ответ]' });
   } catch (err) {
-    console.error('Ошибка GPT:', err);
+    console.error('❌ Ошибка GPT:', err);
     res.status(500).json({ error: 'Ошибка при запросе к GPT' });
   }
 });
 
-// 2) Новый маршрут /transcribe для обработки аудио через Whisper
+// ===== Whisper-Аудио =====
 app.post('/transcribe', upload.single('file'), async (req, res) => {
   try {
-    // формируем FormData для OpenAI
     const form = new FormData();
     form.append('file', req.file.buffer, req.file.originalname);
     form.append('model', 'whisper-1');
@@ -63,14 +70,20 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
     });
 
     const aiData = await aiRes.json();
-    res.json({ text: aiData.text });
+
+    if (!aiRes.ok) {
+      console.error('❌ Whisper API ошибка:', aiData);
+      return res.status(500).json({ error: aiData });
+    }
+
+    res.json({ text: aiData.text || '' });
   } catch (err) {
-    console.error('Ошибка транскрипции:', err);
+    console.error('❌ Ошибка транскрипции:', err);
     res.status(500).json({ error: 'Не удалось расшифровать аудио' });
   }
 });
 
+// ===== Запуск =====
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`GPT backend запущен на порт ${PORT}`);
+  console.log(`✅ GPT backend запущен на порт ${PORT}`);
 });
-
