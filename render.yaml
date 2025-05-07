@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: gpt-backend
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+    autoDeploy: true
