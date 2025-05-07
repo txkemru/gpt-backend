@@ -21,6 +21,7 @@ const upload = multer();
 // ===== GPT-Текст =====
 app.post('/gpt', async (req, res) => {
   const userText = req.body.text;
+  const systemPrompt = req.body.systemPrompt || 'Ты — живой, дружелюбный и умный ассистент.';
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -32,12 +33,12 @@ app.post('/gpt', async (req, res) => {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: 'Ты — живой, дружелюбный и умный ассистент.' },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: userText }
         ],
         temperature: 0.7,
       }),
-    });
+      
 
     const data = await response.json();
 
