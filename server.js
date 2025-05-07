@@ -1,12 +1,12 @@
 // server.js
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import multer from 'multer';
 import FormData from 'form-data';
 
-dotenv.config();
+console.log('🟢 OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'OK' : 'MISSING');
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
