@@ -1,4 +1,3 @@
-// server.js
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
@@ -6,7 +5,6 @@ import multer from 'multer';
 import FormData from 'form-data';
 
 console.log('🟢 OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'OK' : 'MISSING');
-
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -36,9 +34,9 @@ app.post('/gpt', async (req, res) => {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userText }
         ],
-        temperature: 0.7,
-      }),
-      
+        temperature: 0.7
+      })
+    });
 
     const data = await response.json();
 
