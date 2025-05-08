@@ -82,6 +82,38 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
   }
 });
 
+// ===== Text-to-Speech через OpenAI Audio API =====
+app.post('/speech', async (req, res) => {
+  const { text } = req.body;
+  try {
+    const apiRes = await fetch('https://api.openai.com/v1/audio/speech/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'tts-1',
+        voice: 'alloy',
+        input: text
+      })
+    });
+
+    if (!apiRes.ok) {
+      const err = await apiRes.json();
+      console.error('❌ TTS API ошибка:', err);
+      return res.status(500).json({ error: err });
+    }
+
+    const arrayBuffer = await apiRes.arrayBuffer();
+    res.set('Content-Type', 'audio/mpeg');
+    res.send(Buffer.from(arrayBuffer));
+  } catch (err) {
+    console.error('❌ Ошибка TTS:', err);
+    res.status(500).json({ error: 'Не удалось синтезировать речь' });
+  }
+});
+
 // ===== Запуск =====
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ GPT backend запущен на порт ${PORT}`);
