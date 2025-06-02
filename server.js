@@ -29,7 +29,7 @@ app.post('/gpt', async (req, res) => {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userText }
@@ -52,7 +52,7 @@ app.post('/gpt', async (req, res) => {
   }
 });
 
-// ===== Whisper-Аудио =====
+
 app.post('/transcribe', upload.single('file'), async (req, res) => {
   try {
     const form = new FormData();
@@ -82,7 +82,7 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
   }
 });
 
-// ===== Запуск =====
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ GPT backend запущен на порт ${PORT}`);
 });
